@@ -57,61 +57,60 @@ module.exports.showListing = async (req, res) => {
 
 module.exports.createListing = async (req, res, next) => {
 
-  console.log("listing to be created");
-  res.send("listing created one more time");
-//   try {
+  
+  try {
 
-//     console.log("BODY:", req.body);
-//     console.log("FILE:", req.file);
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
 
-//     // Check image upload
-//     if (!req.file) {
-//       req.flash("error", "Image upload failed!");
-//       return res.redirect("/listings/new");
-//     }
+    // Check image upload
+    if (!req.file) {
+      req.flash("error", "Image upload failed!");
+      return res.redirect("/listings/new");
+    }
 
-//     // Mapbox Geocoding
-//     let response = await geocodingClient.forwardGeocode({
-//       query: req.body.listing.location,
-//       limit: 1,
-//     }).send();
+    // Mapbox Geocoding
+    let response = await geocodingClient.forwardGeocode({
+      query: req.body.listing.location,
+      limit: 1,
+    }).send();
 
-//     // Check valid location
-//     if (!response.body.features.length) {
-//       req.flash("error", "Invalid location");
-//       return res.redirect("/listings/new");
-//     }
+    // Check valid location
+    if (!response.body.features.length) {
+      req.flash("error", "Invalid location");
+      return res.redirect("/listings/new");
+    }
 
-//     // Cloudinary image data
-//     let url = req.file.path;
-//     let filename = req.file.filename;
+    // Cloudinary image data
+    let url = req.file.path;
+    let filename = req.file.filename;
 
-//     // Create listing
-//     const newListing = new Listing(req.body.listing);
+    // Create listing
+    const newListing = new Listing(req.body.listing);
 
-//     newListing.owner = req.user._id;
+    newListing.owner = req.user._id;
 
-//     newListing.image = {
-//       url,
-//       filename,
-//     };
+    newListing.image = {
+      url,
+      filename,
+    };
 
-//     // Save geometry
-//     newListing.geometry = response.body.features[0].geometry;
+    // Save geometry
+    newListing.geometry = response.body.features[0].geometry;
 
-//     // Save listing
-//     let savedListing = await newListing.save();
+    // Save listing
+    let savedListing = await newListing.save();
 
-//     console.log(savedListing);
+    console.log(savedListing);
 
-//     req.flash("success", "New Listing Created!");
+    req.flash("success", "New Listing Created!");
 
-//     res.redirect("/listings");
+    res.redirect("/listings");
 
-//   } catch (err) {
-//     console.log("ERROR:", err);
-//     next(err);
-//   }
+  } catch (err) {
+    console.log("ERROR:", err);
+    next(err);
+  }
 };
 
 module.exports.renderEditForm = async (req, res) => {
