@@ -110,7 +110,7 @@ module.exports.createListing = async (req, res, next) => {
   } catch (err) {
     console.log("REAL ERROR =>", err);
 
-    res.send(err.message);;
+    res.send(err.message);
   }
 };
 
