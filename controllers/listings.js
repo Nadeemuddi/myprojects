@@ -32,27 +32,83 @@ module.exports.showListing = async (req, res) => {
   res.render("./listings/show.ejs", { listing });
 };
 
+// module.exports.createListing = async (req, res, next) => {
+//   let response = await geocodingClient.forwardGeocode({
+//     query: req.body.listing.location,
+//     limit: 1,
+//   })
+//     .send()
+
+//   let url = req.file.path;
+//   let filename = req.file.filename;
+//   // console.log(url, "...", filename);
+//   // let {title,description,image,price,country,location}=req.body; this first way below is second way such that make object in ejs file and use here.
+//   //let listing=req.body.listing; second way
+//   const newListing = new Listing(req.body.listing);
+//   newListing.owner = req.user._id;
+//   newListing.image = { url, filename };
+//   newListing.geometry = response.body.features[0].geometry;
+//   let savedListing = await newListing.save();
+//   console.log(savedListing);
+//   req.flash("success", "New Listing Created!")
+//   res.redirect("/listings");
+
+// };
+
 module.exports.createListing = async (req, res, next) => {
-  let response = await geocodingClient.forwardGeocode({
-    query: req.body.listing.location,
-    limit: 1,
-  })
-    .send()
+  try {
 
-  let url = req.file.path;
-  let filename = req.file.filename;
-  // console.log(url, "...", filename);
-  // let {title,description,image,price,country,location}=req.body; this first way below is second way such that make object in ejs file and use here.
-  //let listing=req.body.listing; second way
-  const newListing = new Listing(req.body.listing);
-  newListing.owner = req.user._id;
-  newListing.image = { url, filename };
-  newListing.geometry = response.body.features[0].geometry;
-  let savedListing = await newListing.save();
-  console.log(savedListing);
-  req.flash("success", "New Listing Created!")
-  res.redirect("/listings");
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
 
+    // Check image upload
+    if (!req.file) {
+      req.flash("error", "Image upload failed!");
+      return res.redirect("/listings/new");
+    }
+
+    // Mapbox Geocoding
+    let response = await geocodingClient.forwardGeocode({
+      query: req.body.listing.location,
+      limit: 1,
+    }).send();
+
+    // Check valid location
+    if (!response.body.features.length) {
+      req.flash("error", "Invalid location");
+      return res.redirect("/listings/new");
+    }
+
+    // Cloudinary image data
+    let url = req.file.path;
+    let filename = req.file.filename;
+
+    // Create listing
+    const newListing = new Listing(req.body.listing);
+
+    newListing.owner = req.user._id;
+
+    newListing.image = {
+      url,
+      filename,
+    };
+
+    // Save geometry
+    newListing.geometry = response.body.features[0].geometry;
+
+    // Save listing
+    let savedListing = await newListing.save();
+
+    console.log(savedListing);
+
+    req.flash("success", "New Listing Created!");
+
+    res.redirect("/listings");
+
+  } catch (err) {
+    console.log("ERROR:", err);
+    next(err);
+  }
 };
 
 module.exports.renderEditForm = async (req, res) => {
