@@ -101,6 +101,9 @@ body {
   background-color: #fe424d !important;
   border: none !important;
 }
+.bgColor{
+  background-color: #b0e2f7;
+}
 
 /* Edit page */
 .edit-btn {
